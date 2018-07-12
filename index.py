@@ -1,11 +1,22 @@
 # export FLASK_ENV=development
 import os
 import pprint
+import datetime
+#import pytz
+
 from flask import Flask, request, render_template
 
 app = Flask(__name__) 
 
 cityDict = {}
+
+# https://www.timeanddate.com/time/map/
+def getUTCOffset():
+    utc_now = datetime.datetime.utcnow()
+    offset = 17 - utc_now.hour
+    if offset > 12:
+        offset = -(offset - 12)   # does this logic work?
+    return offset
 
 def loadCities():
     for cityfile in os.listdir("cities"):
@@ -16,6 +27,10 @@ def loadCities():
             cityDict[offset].append(line.strip())
         cityhandle.close()
         
+@app.route('/utcoffset')
+def utcoffset():  # temporary
+    offset = getUTCOffset()
+    return "%d \n" % offset
     
 @app.route('/')
 def index():

@@ -2,7 +2,7 @@
 import os
 import pprint
 import datetime
-#import pytz
+import random
 
 from flask import Flask, request, render_template
 
@@ -30,13 +30,20 @@ def loadCities():
 @app.route('/utcoffset')
 def utcoffset():  # temporary
     offset = getUTCOffset()
-    return "%d \n" % offset
+    index = "UTC+%d_00" % offset
+    output = "offset = %d .  index = %s" % (offset, index)
+    return output
     
 @app.route('/')
 def index():
     loadCities()
-    cities = pprint.pformat(cityDict)
-    return render_template("index.html", cityDict = cityDict)
+    #cities = pprint.pformat(cityDict)
+    offset = getUTCOffset()
+    index = "UTC+%d_00" % offset
+    if index in cityDict:
+        citylist = cityDict[index]
+    mycity = random.choice(citylist)
+    return render_template("index.html", city = mycity)
 
 if __name__ == '__main__':
 	port = int(os.environ.get('PORT', 5000)) 

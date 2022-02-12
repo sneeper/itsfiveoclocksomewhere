@@ -13,7 +13,7 @@ The list of cities mapping to timezones was downloaded from [geonames](http://do
 | /          | A random city where it's 5pm |
 | /[hour]    | A random city where it's [hour] |
 | /all       | All cities where it's 5pm |
-| /all/[hour]| All cities where it's <hour> |
+| /all/[hour]| All cities where it's [hour] |
 
 ### Testing
 

@@ -6,7 +6,14 @@ This is a silly test project written in python using Flask.
 The list of cities mapping to timezones was downloaded from [geonames](http://download.geonames.org/export/dump/).
 
  
- 
+### End Points
+
+| Endpoint   | Description |
+| ---------- | ----------- |
+| /          | A random city where it's 5pm |
+| /[hour]    | A random city where it's [hour] |
+| /all       | All cities where it's 5pm |
+| /all/[hour]| All cities where it's <hour> |
 
 ### Testing
 

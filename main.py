@@ -19,7 +19,6 @@ app = Flask(__name__)
 cities = {}
 
 
-  
 def load_country_dict():
     countries = {}
     countryfile = open('countryInfo.txt', 'r')
@@ -30,12 +29,6 @@ def load_country_dict():
         countryname = country_data[4]
         countries[countrycode] = countryname
     return countries
-
-def header(header = ""):
-    return f"<html><header>{header}</header/><body>"
-
-def footer():
-    return f"</body></html>"
 
 def load_cities_by_timezone():
     countries = load_country_dict()

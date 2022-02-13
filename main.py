@@ -12,12 +12,28 @@ import os
 from datetime import datetime
 from flask import Flask, render_template
 from markupsafe import escape
+from simple_image_download import simple_image_download as simp
 
 stateObj = re.compile('^[A-Za-z][A-Za-z]$')
 
 app = Flask(__name__)
 cities = {}
 
+def getImageUrl(city):
+    items = city.split(',')
+    items = [x.strip() for x in items]
+    items = [f'"{x}"' for x in items]
+    city = " ".join(items)
+    #print(city)
+    urls = simp.simple_image_download().urls(city, 5)
+    #print(urls)
+    for x in urls:
+        if not x.find('thumb') > -1:
+            if x.find('commons.wikimedia.org'):
+                x = x.replace('File:', 'Special:FilePath/')
+            #print(f'Choosing {x}')
+            return x
+    return None
 
 def load_country_dict():
     countries = {}
@@ -108,7 +124,8 @@ def singlecity(drinktime='17'):
         dt=17
     allcities = get_drinky_cities(dt)
     city = random.choice(allcities)
-    return render_template('random_city.html', city=escape(city), dtampm=hourStrAMPM(dt), dt=hourStr(dt))
+    imgurl = getImageUrl(city)
+    return render_template('random_city.html', city=escape(city), dtampm=hourStrAMPM(dt), dt=hourStr(dt), imgurl=imgurl )
 
 cities = load_cities_by_timezone()
 port = int(os.environ.get('PORT', 80))

@@ -1,10 +1,15 @@
 <html>
+<head>
 <title>It's {{dt}} o'clock somewhere!</title>
+</head>
 <body>
 <center>
 <h1>It's {{dt}} o'clock somewhere!</h1>
 <h2>It's {{dtampm}} in <b>{{city}}</b>. Cheers!</h2>
 <p>
+{% if imgurl %}
+    <img src={{imgurl}} width="500" height="500"></img>
+{% endif %}
 <p>
 
 

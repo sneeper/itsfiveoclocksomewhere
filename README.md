@@ -15,12 +15,19 @@ The list of cities mapping to timezones was downloaded from [geonames](http://do
 | /all       | All cities where it's 5pm |
 | /all/[hour]| All cities where it's [hour] |
 
-### Testing
+### Clone and modify
 
 ```
 git clone git@github.com:sneeper/itsfiveoclocksomewhere.git
 
-docker build itsfiveoclocksomewhere -t fiveoclocksomewhere
+cd itsfiveoclocksomewhere
+```
+
+### Testing
+
+
+```
+docker build . -t fiveoclocksomewhere
 
 docker run -p 5001:5001 --env PORT=5001 -it fiveoclocksomewhere
 

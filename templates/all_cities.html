@@ -6,7 +6,7 @@
 
 <ol>
 {%for x in allcities%}
-    <li>{{x}}</i>
+    <li>{{x[1].strftime("%-I:%M %p")}} {{x[0]}}</i>
 {% endfor %}
 </ol>
 </body>

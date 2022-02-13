@@ -19,6 +19,7 @@ stateObj = re.compile('^[A-Za-z][A-Za-z]$')
 app = Flask(__name__)
 cities = {}
 
+
 def getImageUrl(city):
     items = city.split(',')
     items = [x.strip() for x in items]
@@ -85,25 +86,21 @@ def get_drinkyzones(drinkytime=17):
         tz = pytz.timezone(timezone)
         localtime = datetime.now(tz)
         if localtime.hour == drinkytime:
-            drinkytimezones.append(timezone)
+            drinkytimezones.append([timezone, localtime])
     return drinkytimezones
 
 def get_drinky_cities(drinktime=17):
     allcities = []
     drinkyzones = get_drinkyzones(drinktime)
     for zone in drinkyzones:
-        if zone in cities:
-            for city in cities[zone]:
-                allcities.append(city)
+        if zone[0] in cities:
+            for city in cities[zone[0]]:
+                allcities.append([city, zone[1]])
     return allcities
-
-def hourStr(hour):
-    x = datetime.now()
-    return datetime(year=x.year, month=x.month, day=x.day, hour=hour).strftime("%-I")
 
 def hourStrAMPM(hour):
     x = datetime.now()
-    return datetime(year=x.year, month=x.month, day=x.day, hour=hour).strftime("%-I %p")
+    return datetime(year=x.year, month=x.month, day=x.day, hour=hour, minute=x.minute).strftime("%-I %p")
 
 @app.route('/all/<drinktime>')
 @app.route('/all')
@@ -124,8 +121,9 @@ def singlecity(drinktime='17'):
         dt=17
     allcities = get_drinky_cities(dt)
     city = random.choice(allcities)
-    imgurl = getImageUrl(city)
-    return render_template('random_city.html', city=escape(city), dtampm=hourStrAMPM(dt), dt=hourStr(dt), imgurl=imgurl )
+    imgurl = getImageUrl(city[0])
+    print(imgurl)
+    return render_template('random_city.html', city=escape(city[0]), localtime=city[1], imgurl=imgurl )
 
 cities = load_cities_by_timezone()
 port = int(os.environ.get('PORT', 80))

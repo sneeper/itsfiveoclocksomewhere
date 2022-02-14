@@ -5,5 +5,6 @@ WORKDIR $APP_HOME
 COPY . ./
 
 RUN pip install --no-cache-dir -r requirements.txt
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 2 --timeout 0 main:app --log-level debug
+#CMD exec gunicorn --bind :$PORT --workers 1 --threads 2 --timeout 0 main:app --log-level debug
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 2 --timeout 0 main:app
 

@@ -29,7 +29,7 @@ def getImageUrl(city):
     urls = simp.simple_image_download().urls(city, 5)
     #print(urls)
     for x in urls:
-        if not x.find('thumb') > -1:
+        if not "thumb" in x and not "google" in x:
             if x.find('commons.wikimedia.org'):
                 x = x.replace('File:', 'Special:FilePath/')
             #print(f'Choosing {x}')
@@ -122,7 +122,7 @@ def singlecity(drinktime='17'):
     allcities = get_drinky_cities(dt)
     city = random.choice(allcities)
     imgurl = getImageUrl(city[0])
-    print(imgurl)
+    #print(imgurl)
     return render_template('random_city.html', city=escape(city[0]), localtime=city[1], imgurl=imgurl )
 
 cities = load_cities_by_timezone()

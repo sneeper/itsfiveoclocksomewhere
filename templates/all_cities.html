@@ -6,7 +6,14 @@
 
 <ol>
 {%for x in allcities%}
-    <li>{{x[1].strftime("%-I:%M %p")}} {{x[0]}}</i>
+    <li>{{x.localtime.strftime("%-I:%M %p")}} {{x.fullname}} - 
+    {% set m = getToast(x.language) %}
+    {% if m %}
+        {{ m }}
+    {% else %}
+        (missing cheers for {{x.language}})
+    {% endif %}
+</i>
 {% endfor %}
 </ol>
 </body>

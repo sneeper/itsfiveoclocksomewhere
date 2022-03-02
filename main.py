@@ -19,6 +19,45 @@ stateObj = re.compile('^[A-Za-z][A-Za-z]$')
 app = Flask(__name__)
 cities = {}
 
+class country:
+    def __init__(self, name, languages):
+        self.name = name
+        self.languages = languages.split(',')
+
+class timezone:
+    def __init__(self, timezone, localtime):
+        self.timezone = timezone
+        self.localtime = localtime
+
+class city:
+    def __init__(self, line, countryDict):
+        cityinfo = line.split('\t')
+        self.name = cityinfo[2]
+        country = cityinfo[8]
+        if country in countryDict:
+            self.country = countryDict[country].name
+            self.language = countryDict[country].languages[0]
+        maybestate = cityinfo[10]
+        self.timezone = cityinfo[17]
+        self.state = None
+        if stateObj.match(maybestate):
+            self.state = maybestate
+        if self.state:
+            self.fullname = f'{self.name}, {self.state}, {self.country}'
+        else:
+            self.fullname = f'{self.name}, {self.country}'
+    state = None
+    country = None
+    language = None
+
+def getToast(language):
+    salud = None
+    general_language = language.split('-')[0] # e.g. en instead of  en-CA
+    if language in cheersDict:
+        salud = random.choice(cheersDict[language])
+    elif general_language in cheersDict:
+        salud = random.choice(cheersDict[general_language])
+    return salud
 
 def getImageUrl(city):
     items = city.split(',')
@@ -43,59 +82,56 @@ def load_country_dict():
         if line[0] == '#': continue
         country_data = line.split('\t')
         countrycode = country_data[0]
-        countryname = country_data[4]
-        countries[countrycode] = countryname
+        x = country(name=country_data[4], languages=country_data[15])
+        countries[countrycode] = x
     return countries
 
 def load_cities_by_timezone():
-    countries = load_country_dict()
+    countryDict = load_country_dict()
     cities = {}
     cityfile = open('cities15000.txt', 'r')
     for line in cityfile.readlines():
-        cityinfo = line.split('\t')
-        cityname = cityinfo[2]
-        country = cityinfo[8]
-        maybestate = cityinfo[10]
-        state=None 
-        if stateObj.match(maybestate):
-            state = maybestate
-
-        if country in countries:
-            country = countries[country]
+        x = city(line, countryDict)
        
-        if state:
-            fullname = f'{cityname}, {state}, {country}'
+        if x.timezone in cities:
+            cities[x.timezone].append(x)
         else:
-            fullname = f'{cityname}, {country}'
-        timezone = cityinfo[17]
-       
-        if timezone in cities:
-            cities[timezone].append(fullname)
-        else:
-            cities[timezone] = [fullname]
+            cities[x.timezone] = [x]
     cityfile.close()
     return cities
     
+def load_cheers_by_language():
+    cheersDict = {}
+    for languagefile in os.listdir('cheers'):
+        if languagefile[-4:] == '.txt':
+            language = languagefile[:-4]
+            x = open(f'cheers/{languagefile}', 'r')
+            cheerslist = [m.rstrip() for m in x.readlines()]
+            x.close()
+            cheersDict[language] = cheerslist
+    return cheersDict
 
 def get_drinkyzones(drinkytime=17):
     drinkytimezones = []
     all_timezones = pytz.all_timezones
     if 'leapseconds' in all_timezones:
         all_timezones.remove('leapseconds') # why was this in there?!
-    for timezone in all_timezones:
-        tz = pytz.timezone(timezone)
+    for timezonestr in all_timezones:
+        tz = pytz.timezone(timezonestr)
         localtime = datetime.now(tz)
         if localtime.hour == drinkytime:
-            drinkytimezones.append([timezone, localtime])
+            x = timezone(timezone = timezonestr, localtime = localtime)
+            drinkytimezones.append(x)
     return drinkytimezones
 
 def get_drinky_cities(drinktime=17):
     allcities = []
     drinkyzones = get_drinkyzones(drinktime)
     for zone in drinkyzones:
-        if zone[0] in cities:
-            for city in cities[zone[0]]:
-                allcities.append([city, zone[1]])
+        if zone.timezone in cities.keys():
+            for mycity in cities[zone.timezone]:
+                mycity.localtime = zone.localtime
+                allcities.append(mycity)
     return allcities
 
 def hourStrAMPM(hour):
@@ -110,7 +146,7 @@ def allcities(drinktime='17'):
     except:
         dt=17
     allcities = get_drinky_cities(dt)
-    return render_template('all_cities.html', allcities=allcities, dt=hourStrAMPM(dt))
+    return render_template('all_cities.html', allcities=allcities, dt=hourStrAMPM(dt), cheersDict=cheersDict, getToast=getToast )
 
 @app.route('/<drinktime>')
 @app.route('/')
@@ -121,11 +157,14 @@ def singlecity(drinktime='17'):
         dt=17
     allcities = get_drinky_cities(dt)
     city = random.choice(allcities)
-    imgurl = getImageUrl(city[0])
+    salud = getToast(city.language)
+    #print(salud)
+    imgurl = getImageUrl(city.fullname)
     #print(imgurl)
-    return render_template('random_city.html', city=escape(city[0]), localtime=city[1], imgurl=imgurl )
+    return render_template('random_city.html', city=escape(city.fullname), localtime=city.localtime, imgurl=imgurl, salud=salud )
 
 cities = load_cities_by_timezone()
+cheersDict = load_cheers_by_language()
 port = int(os.environ.get('PORT', 80))
 
 if __name__ == '__main__':

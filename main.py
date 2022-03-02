@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # countryInfo from http://download.geonames.org/export/dump/
-# cities15000.txt from http://download.geonames.org/export/dump/
+# cities15000.txt and cities5000.txt from http://download.geonames.org/export/dump/
 # 
 #
 #
@@ -89,7 +89,7 @@ def load_country_dict():
 def load_cities_by_timezone():
     countryDict = load_country_dict()
     cities = {}
-    cityfile = open('cities15000.txt', 'r')
+    cityfile = open('cities5000.txt', 'r')
     for line in cityfile.readlines():
         x = city(line, countryDict)
        
